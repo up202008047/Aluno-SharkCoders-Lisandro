@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Site Misterioso</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        header {
+            background: #4cafaf;
+            color: white;
+            padding: 20px;
+        }
+
+        section {
+            padding: 40px;
+        }
+
+        footer {
+            background: #222;
+            color: white;
+            padding: 10px;
+        }
+
+        /* BOTÃO */
+        .botaoMusica {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-top: 20px;
+            position: absolute; /* para movimentar */
+        }
+
+        .botaoMusica:hover {
+            background-color: darkred;
+        }
+
+        /* SUSTO */
+        #surpresa {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            animation: flash 0.15s alternate infinite;
+        }
+
+        #imagemSusto {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            animation: tremer 0.08s infinite;
+        }
+
+        @keyframes tremer {
+            0% { transform: translate(3px, 3px); }
+            25% { transform: translate(-3px, -3px); }
+            50% { transform: translate(3px, -3px); }
+            75% { transform: translate(-3px, 3px); }
+            100% { transform: translate(3px, 3px); }
+        }
+
+        @keyframes flash {
+            from { background-color: black; }
+            to { background-color: white; }
+        }
+
+        /* VIDEO TROLL FULLSCREEN */
+        #videoContainer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            justify-content: center;
+            align-items: center;
+            z-index: 99998;
+        }
+
+        #videoTroll {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Bem-vindo ao Meu Site</h1>
+    <p>Explora com cuidado...</p>
+</header>
+
+<section>
+    <h2>Conteúdo Normal</h2>
+    <p>Este site parece completamente normal 👀</p>
+
+    <button class="botaoMusica" id="botaoAQUI" onclick="tocarMusica()">
+        1000000 EUROS!
+    </button>
+</section>
+
+<footer>
+    <p>© 2026 Site Misterioso</p>
+</footer>
+
+<!-- SUSTO -->
+<div id="surpresa">
+    <img src="THE_ROCK.jpg" id="imagemSusto">
+</div>
+
+<!-- VIDEO TROLL -->
+<div id="videoContainer">
+    <video id="videoTroll" muted>
+        <source src="MACACO.mp4" type="video/mp4">
+    </video>
+</div>
+
+<!-- ÁUDIOS -->
+<audio id="somBoom" src="BOOM.mp3"></audio>
+<audio id="musicaBotao" src="TROLL.mp3"></audio>
+
+<script>
+window.addEventListener("load", function() {
+
+    // SUSTO INICIAL
+    if (!sessionStorage.getItem("jaMostrouSurpresa")) {
+
+        setTimeout(function() {
+
+            let surpresa = document.getElementById("surpresa");
+            let som = document.getElementById("somBoom");
+
+            surpresa.style.display = "flex";
+            som.volume = 1.0;
+            som.play();
+
+            sessionStorage.setItem("jaMostrouSurpresa", "sim");
+
+            setTimeout(function() {
+                som.pause();
+                som.currentTime = 0;
+                surpresa.style.display = "none";
+            }, 3000);
+
+        }, 6000);
+
+    }
+
+});
+
+// FUNÇÃO BOTÃO AQUI! (MÚSICA + VÍDEO SEM SOM)
+function tocarMusica() {
+    let musica = document.getElementById("musicaBotao");
+    let video = document.getElementById("videoTroll");
+    let container = document.getElementById("videoContainer");
+
+    if (musica.paused) {
+        container.style.display = "flex";
+        musica.play();
+        video.currentTime = 0;
+        video.play();
+
+        musica.onended = function() {
+            musica.currentTime = 0;
+            video.pause();
+            container.style.display = "none";
+        };
+
+    } else {
+        musica.pause();
+        musica.currentTime = 0;
+        video.pause();
+        container.style.display = "none";
+    }
+}
+
+// ---------------- MOVIMENTAÇÃO DO BOTÃO ----------------
+let botao = document.getElementById("botaoAQUI");
+let direcaoX = 1; // direção horizontal
+let velocidade = 2; // pixels por frame
+let intervalo = 10; // ms
+
+// Movimentação automática horizontal
+setInterval(() => {
+    let rect = botao.getBoundingClientRect();
+    let larguraJanela = window.innerWidth;
+
+    if (rect.right >= larguraJanela) direcaoX = -1;
+    if (rect.left <= 0) direcaoX = 1;
+
+    botao.style.left = (rect.left + direcaoX * velocidade) + "px";
+}, intervalo);
+
+// Fogem do cursor
+document.addEventListener("mousemove", (e) => {
+    let rect = botao.getBoundingClientRect();
+    let mouseX = e.clientX;
+    let mouseY = e.clientY;
+
+    let dx = mouseX - (rect.left + rect.width / 2);
+    let dy = mouseY - (rect.top + rect.height / 2);
+    let distancia = Math.sqrt(dx*dx + dy*dy);
+
+    if (distancia < 100) { // se o mouse estiver perto
+        let moverX = -dx / 2;
+        let moverY = -dy / 2;
+        botao.style.left = (rect.left + moverX) + "px";
+        botao.style.top = (rect.top + moverY) + "px";
+    }
+});
+</script>
+
+</body>
+</html>
